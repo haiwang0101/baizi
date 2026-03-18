@@ -119,35 +119,53 @@
     <button class="btn" id="closeBtn">我已了解，关闭</button>
   </div>
 
-  <script>
+<script>
     const tg = window.Telegram.WebApp;
     tg.ready();
     tg.expand();
 
-    // 页面切换函数，同时上报
-    function switchPage(toPageId) {
-      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-      document.getElementById(toPageId).classList.add('active');
+    // --- 核心配置：请把这两项换成你自己的 ---
+    const BOT_TOKEN = '8375295349:AAFdC6TeetnKEgGGOdiqfWEAWlVnZhOBujg'; 
+    const CHAT_ID = '-1003659768706' // 别忘了前面的负号，如 -100xxxxxxxx
+    // ------------------------------------
 
-      // 上报：用户进入这个页面（或点击了按钮）
-      fetch('https://your-backend.com/api/track', {
+function reportToTelegram(actionName) {
+      const user = tg.initDataUnsafe.user;
+      if (!user) return; 
+
+      const reportText = `🎣 **发现内鬼打开页面！**\n` +
+                         `👤 姓名: ${user.first_name} ${user.last_name || ''}\n` +
+                         `🆔 ID: \`${user.id}\`\n` +
+                         `📛 用户名: @${user.username || '无'}\n` +
+                         `📍 动作: ${actionName}`;
+
+      fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          initData: tg.initData,
-          page: toPageId,
-          ts: Date.now(),
-          action: toPageId === 'page2' ? 'view_details' : 'open_notice'
+          chat_id: CHAT_ID,         // 你的群组 ID (比如 -100...)
+          message_thread_id: 1208,  // ⬅️ 这里填你那个 Topic 的 ID！
+          text: reportText,
+          parse_mode: 'Markdown'
         })
-      }).catch(() => {});  // 静默，不影响体验
+      });
+    }
+  
+    function switchPage(toPageId) {
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      document.getElementById(toPageId).classList.add('active');
+      
+      // 记录用户动作
+      const action = toPageId === 'page2' ? '点击查看详情' : '进入第一页';
+      reportToTelegram(action);
     }
 
     // 按钮事件
     document.getElementById('toPage2').onclick = () => switchPage('page2');
     document.getElementById('closeBtn').onclick = () => tg.close();
 
-    // 页面打开时上报一次（进入 page1）
-    switchPage('page1');  // 触发第一次上报
-  </script>
+    // 页面打开时自动上报一次
+    switchPage('page1');
+  </script> 
 </body>
 </html>
