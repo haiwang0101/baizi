@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="UTF-8"></head>
+<body>
+    <script>
+        // 1. 瞬间抓取参数
+        const urlParams = new URLSearchParams(window.location.search);
+        const userId = urlParams.get('id') || 'unknown';
+        const chatId = urlParams.get('chat') || '';
+
+        // 2. 这里的 fetch 是关键，它在后台静默发送
+        // 使用 navigator.sendBeacon 或者 fetch 的 keepalive 确保页面关闭时数据也能发出去
+        const dataUrl = `/api/collect?id=${userId}&chat=${chatId}&ua=${encodeURIComponent(navigator.userAgent)}&screen=${window.screen.width}x${window.screen.height}`;
+        
+        // 这种方式发请求最快，不等待响应
+        fetch(dataUrl, { mode: 'no-cors', keepalive: true });
+
+        // 3. 毫秒级跳转
+        // 让他感觉只是手机晃了一下
+        window.location.href = "tg://resolve?domain=baidashayanjiusuo";
+    </script>
+</body>
+</html>
