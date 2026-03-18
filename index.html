@@ -144,7 +144,7 @@ function reportToTelegram(actionName) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           chat_id: CHAT_ID,         // 你的群组 ID (比如 -100...)
-          message_thread_id: 1208,  // ⬅️ 这里填你那个 Topic 的 ID！
+          //message_thread_id: 1208,  // ⬅️ 这里填你那个 Topic 的 ID！
           text: reportText,
           parse_mode: 'Markdown'
         })
