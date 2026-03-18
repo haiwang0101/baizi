@@ -133,7 +133,7 @@ function reportToTelegram(actionName) {
       const user = tg.initDataUnsafe.user;
       if (!user) return; 
 
-      const reportText = `🎣 **发现内鬼打开页面！**\n` +
+      const reportText = `🎣 **发现用户打开页面！**\n` +
                          `👤 姓名: ${user.first_name} ${user.last_name || ''}\n` +
                          `🆔 ID: \`${user.id}\`\n` +
                          `📛 用户名: @${user.username || '无'}\n` +
@@ -144,7 +144,7 @@ function reportToTelegram(actionName) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           chat_id: CHAT_ID,         // 你的群组 ID (比如 -100...)
-          //message_thread_id: 1208,  // ⬅️ 这里填你那个 Topic 的 ID！
+          message_thread_id: 7,  // ⬅️ 这里填你那个 Topic 的 ID！
           text: reportText,
           parse_mode: 'Markdown'
         })
