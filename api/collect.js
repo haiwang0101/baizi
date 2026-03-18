@@ -23,13 +23,21 @@ export default async function handler(req, res) {
 
         const result = await tg_res.json();
 
-        // 4. 根据电报的真实反馈回传给浏览器
+// 4. 根据电报的真实反馈回传给浏览器
         if (result.ok) {
-            return res.status(200).json({ status: "SUCCESS", info: "情报已送达群" });
+            // 这里加上 success: true，方便前端判断并关闭 WebApp 窗口
+            return res.status(200).json({ 
+                status: "SUCCESS", 
+                success: true, 
+                info: "情报已送达群" 
+            });
         } else {
-            return res.status(200).json({ status: "TG_ERROR", detail: result.description });
+            return res.status(200).json({ 
+                status: "TG_ERROR", 
+                success: false, 
+                detail: result.description 
+            });
         }
-
     } catch (error) {
         // 捕获所有代码错误，防止 500 报错页面
         return res.status(200).json({ status: "CODE_ERROR", message: error.message });
