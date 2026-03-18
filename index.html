@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>最新举报活动 - 白白鹏相关频道</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <style>
+    :root {
+      --bg: var(--tg-theme-bg-color, #ff0000);      /* 默认红底 */
+      --text: #ffff00;                              /* 黄字 */
+      --subtext: #00ff00;                           /* 绿字 */
+      --white: #ffffff;
+    }
+    body {
+      font-family: system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      margin: 0;
+      padding: 20px;
+      min-height: 100vh;
+      text-align: center;
+      line-height: 1.5;
+    }
+    h1 {
+      font-size: 32px;
+      margin: 10px 0;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+    }
+    .subtitle {
+      font-size: 24px;
+      color: var(--subtext);
+      margin: 16px 0;
+    }
+    .content {
+      font-size: 18px;
+      color: var(--white);
+      margin: 20px 0;
+      white-space: pre-wrap;
+    }
+    .page {
+      display: none;
+    }
+    .page.active {
+      display: block;
+    }
+    .btn {
+      background: #000000;
+      color: #ffff00;
+      border: 3px solid #ffff00;
+      padding: 16px 32px;
+      font-size: 20px;
+      font-weight: bold;
+      border-radius: 12px;
+      margin: 20px auto;
+      display: block;
+      cursor: pointer;
+      max-width: 300px;
+    }
+    .channel-box {
+      background: rgba(0,0,0,0.4);
+      border-radius: 12px;
+      padding: 16px;
+      margin: 20px 0;
+      color: var(--white);
+    }
+    .small {
+      font-size: 14px;
+      color: #cccccc;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 页面1 -->
+  <div id="page1" class="page active">
+    <h1>最新举报活动！</h1>
+    <div class="subtitle">举报白白鹏</div>
+    <div class="subtitle">两个油油管账号！</div>
+    <div class="content">
+      白白鹏说事儿的海外大号 & 北京版
+      散布不良内容，影响恶劣！
+    </div>
+    <button class="btn" id="toPage2">查看详情 & 举报方法 →</button>
+  </div>
+
+  <!-- 页面2 -->
+  <div id="page2" class="page">
+    <h1>两个频道信息</h1>
+
+    <div class="channel-box">
+      <div style="font-size:22px; font-weight:bold;">白白鹏说事儿大号海外版</div>
+      <div>@BAIYESHUOOSHI</div>
+      <div>1.38万订阅 · 266视频</div>
+      <a href="https://www.youtube.com/@BAIYESHUOOSHI" style="color:#00ff00; font-size:18px; text-decoration:underline;">
+        https://www.youtube.com/@BAIYESHUOOSHI
+      </a>
+    </div>
+
+    <div class="channel-box">
+      <div style="font-size:22px; font-weight:bold;">北京白白鹏版</div>
+      <div>@白话蛋</div>
+      <div>982订阅 · 82视频</div>
+      <a href="https://www.youtube.com/@%E7%99%BD%E8%AF%9D%E8%9B%8B" style="color:#00ff00; font-size:18px; text-decoration:underline;">
+        https://www.youtube.com/@白话蛋
+      </a>
+    </div>
+
+    <div class="content" style="margin:30px 0;">
+      举报操作相同，只需分别举报两个频道。<br>
+      （个人行为，请自行斟酌，不强制要求）
+    </div>
+
+    <div class="content" style="font-size:22px; font-weight:bold;">
+      每天点举报，惩治恶人<br>
+      为自己积德行善！
+    </div>
+
+    <button class="btn" id="closeBtn">我已了解，关闭</button>
+  </div>
+
+  <script>
+    const tg = window.Telegram.WebApp;
+    tg.ready();
+    tg.expand();
+
+    // 页面切换函数，同时上报
+    function switchPage(toPageId) {
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      document.getElementById(toPageId).classList.add('active');
+
+      // 上报：用户进入这个页面（或点击了按钮）
+      fetch('https://your-backend.com/api/track', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          initData: tg.initData,
+          page: toPageId,
+          ts: Date.now(),
+          action: toPageId === 'page2' ? 'view_details' : 'open_notice'
+        })
+      }).catch(() => {});  // 静默，不影响体验
+    }
+
+    // 按钮事件
+    document.getElementById('toPage2').onclick = () => switchPage('page2');
+    document.getElementById('closeBtn').onclick = () => tg.close();
+
+    // 页面打开时上报一次（进入 page1）
+    switchPage('page1');  // 触发第一次上报
+  </script>
+</body>
+</html>
